@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this software or dataset, please cite the paper below."
+title: "Agent-to-Agent Prompt Injection in AI-Only Social Networks: A Taxonomy and Detection Study on Moltbook"
+authors:
+  - family-names: "Taşçı"
+    given-names: "Mustafa"
+    affiliation: "Bandırma Onyedi Eylül University"
+    # orcid: "https://orcid.org/0000-0000-0000-0000"   # TODO: add your ORCID
+date-released: 2026-01-01   # TODO: update
+license: MIT
+preferred-citation:
+  type: article
+  title: "Agent-to-Agent Prompt Injection in AI-Only Social Networks: A Taxonomy and Detection Study on Moltbook"
+  authors:
+    - family-names: "Taşçı"
+      given-names: "Mustafa"
+  journal: "PeerJ Computer Science"
+  year: 2026
+  # doi: "10.7717/peerj-cs.XXXX"   # TODO: add once published

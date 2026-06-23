@@ -1,0 +1,25 @@
+# Core data / numerics
+pandas
+numpy
+scipy
+
+# Modeling & evaluation
+scikit-learn
+
+# Transformers (Phase 2: zero-shot BART-MNLI + fine-tuned DistilBERT)
+torch
+transformers
+datasets
+
+# Plotting
+matplotlib
+seaborn
+
+# Utilities
+tqdm
+pyarrow            # parquet cache read/write (Phase 1)
+
+# Notes:
+# - Versions intentionally left unpinned; pin them to your tested environment for full reproducibility,
+#   e.g. run `pip freeze > requirements.lock.txt` after a successful run.
+# - A GPU build of torch is recommended for DistilBERT fine-tuning (Phase 2).
