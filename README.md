@@ -41,7 +41,7 @@ so candidate generation — not classification — is the main deployment bottle
 
 ## Method overview
 
-![Methodology pipeline](figures/Figure1_pipeline.png)
+![Methodology pipeline](figures/Figure1_pipeline_EN-Pipeline.png)
 
 *End-to-end pipeline. Phase 1 covers data collection, recall-oriented heuristic screening, and
 human-validated labeling; Phase 2 covers deduplication, group-aware splitting, model training,
