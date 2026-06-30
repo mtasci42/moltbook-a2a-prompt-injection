@@ -1,14 +1,21 @@
 # Agent-to-Agent Prompt Injection in AI-Only Social Networks
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20822682.svg)](https://doi.org/10.5281/zenodo.20822682)
+[![Code License: MIT](https://img.shields.io/badge/Code%20License-MIT-yellow.svg)](LICENSE)
+[![Data License: CC BY 4.0](https://img.shields.io/badge/Data%20License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
+
 Code, data, and reproducibility materials for the paper:
 
 > **Agent-to-Agent Prompt Injection in AI-Only Social Networks: A Taxonomy and Detection Study on Moltbook**
 > Mustafa Taşçı, Bandırma Onyedi Eylül University.
-> *(PeerJ Computer Science, 2026 — DOI: `TODO: add once published`)*
+> *(PeerJ Computer Science, 2026 — article DOI: `TODO: add once published`)*
+
+- **Source code (GitHub):** <https://github.com/mtasci42/moltbook-a2a-prompt-injection>
+- **Archived release (Zenodo):** <https://doi.org/10.5281/zenodo.20822682>
 
 This repository contains the human-validated dataset, the analysis and modeling notebooks, and the
 figures used in the paper. Together they reproduce the taxonomy, the detection benchmark, and the
-reported results.
+reported results. A citable, version-archived snapshot is deposited on Zenodo at the DOI above.
 
 ---
 
@@ -39,13 +46,33 @@ so candidate generation — not classification — is the main deployment bottle
 
 ---
 
-## Method overview
+## Methodology
 
 ![Methodology pipeline](figures/Figure1_pipeline_EN-Pipeline.png)
 
 *End-to-end pipeline. Phase 1 covers data collection, recall-oriented heuristic screening, and
 human-validated labeling; Phase 2 covers deduplication, group-aware splitting, model training,
 threshold optimization, and evaluation.*
+
+The processing and modeling steps, in order, are:
+
+1. **Data collection.** A 3,105,136-post window of the public Moltbook archive is loaded (see
+   *Data → Third-party data source* below).
+2. **Heuristic screening.** A high-recall, regex-based screen flags candidate posts that match any of
+   the five taxonomy categories, producing the candidate pool.
+3. **EDA & phase analysis.** Exploratory analysis across the three platform phases (launch,
+   stabilization, post-acquisition).
+4. **Sampling & labeling.** A phase-balanced sample is drawn from the candidate pool and labeled via
+   LLM-assisted annotation with human adjudication, yielding `moltbook_seed_v2.csv`.
+5. **Deduplication.** Template-based deduplication groups near-duplicate posts.
+6. **Group-aware split.** A train/test split that keeps all members of a duplicate group on the same
+   side, preventing template leakage between train and test.
+7. **Model training.** Three detectors are trained: zero-shot transformer, fine-tuned DistilBERT, and
+   TF-IDF + logistic regression.
+8. **Threshold optimization & evaluation.** Decision thresholds are tuned; models are compared with
+   paired bootstrap and McNemar tests, group-aware cross-validation, and a temporal holdout.
+9. **Recall audit.** An independent phase-stratified sample (`recall_audit_labeled.csv`) estimates the
+   true attack base rate and the heuristic screen's recall.
 
 ---
 
@@ -69,14 +96,58 @@ threshold optimization, and evaluation.*
 └── README.md
 ```
 
-> The full 3.1M-post archive is **not** included here (it is large and externally maintained). It is
-> obtained inside `phase1_data_exploration.ipynb` from the public Moltbook Observatory Archive:
-> `TODO: add the dataset URL / DOI (the same source used in the notebook's load_dataset call)`.
-> The two CSVs above are the human-validated subsets the paper releases.
+---
+
+## Code Information
+
+All analysis is implemented in two self-contained Jupyter notebooks (Python 3.10+), developed on
+Google Colab. No separate package or CLI is required; running the notebooks top to bottom reproduces
+every result, table, and figure in the paper.
+
+| Notebook | Purpose | Key inputs | Key outputs |
+|---|---|---|---|
+| `notebooks/phase1_data_exploration.ipynb` | Data loading, high-recall heuristic screening, EDA and phase analysis, balanced sampling, seed export, and the screen-recall audit | Moltbook archive (downloaded in-notebook) | `moltbook_seed_v2.csv`, `recall_audit_labeled.csv`, EDA figures |
+| `notebooks/phase2_model_training.ipynb` | Template deduplication and group-aware split; training/evaluation of the three detectors; threshold optimization; bootstrap/McNemar significance tests; group-aware cross-validation; temporal holdout; error and interpretability analysis | `moltbook_seed_v2.csv` | Benchmark tables, ROC/PR curves, significance-test results, error analysis |
+
+- **Language / runtime:** Python 3.10+.
+- **Main libraries:** see [`requirements.txt`](requirements.txt) (scikit-learn, pandas, NumPy,
+  Hugging Face `transformers`/`datasets`, PyTorch, matplotlib).
+- **Hardware:** the TF-IDF and zero-shot paths run on CPU; fine-tuning DistilBERT in Phase 2 benefits
+  from a GPU.
+- **Configuration:** both notebooks define a `DATASET_DIR` (Google Drive) path near the top — edit it
+  to your own directory before running.
 
 ---
 
 ## Data
+
+### Third-party data source
+
+The raw post archive is third-party data obtained from the **Moltbook Observatory Archive**, an open
+dataset published on Hugging Face by the Simula Metropolitan Center for Digital Engineering (SimulaMet):
+
+- **Dataset:** <https://huggingface.co/datasets/SimulaMet/moltbook-observatory-archive>
+- **Authors:** Sushant Gautam and Michael A. Riegler (SimulaMet)
+- **License:** MIT
+- **Underlying tool (source code):** <https://github.com/kelkalot/moltbook-observatory>
+
+The full 3,105,136-post window is **not** redistributed in this repository: it is large and externally
+maintained, and is retrieved inside `phase1_data_exploration.ipynb` from the `posts` subset of that
+archive, e.g.:
+
+```python
+from datasets import load_dataset
+
+ds = load_dataset(
+    "SimulaMet/moltbook-observatory-archive",
+    "posts",
+    split="archive",
+)
+```
+
+The two CSVs released here are the human-validated subsets derived from that archive. The same source
+is cited in the *Materials & Methods* section of the paper (see *Citation → Third-party data source*
+below for the formal reference).
 
 ### `data/moltbook_seed_v2.csv` — labeled seed (n = 630)
 
@@ -117,7 +188,16 @@ flagged (`regex_flagged == 1`).
 
 ---
 
-## Reproducing the results
+## Usage / reproducing the results
+
+### Get the repository
+
+```bash
+git clone https://github.com/mtasci42/moltbook-a2a-prompt-injection.git
+cd moltbook-a2a-prompt-injection
+```
+
+(Alternatively, download the archived release from Zenodo: <https://doi.org/10.5281/zenodo.20822682>.)
 
 ### Requirements
 
@@ -125,7 +205,7 @@ flagged (`regex_flagged == 1`).
 pip install -r requirements.txt
 ```
 
-Python 3.10+ is recommended. Fine-tuning DistilBERT in Phase 2 benefits from a GPU (the notebook was
+Python 3.10+ is recommended. Fine-tuning DistilBERT in Phase 2 benefits from a GPU (the notebooks were
 developed on Google Colab); the TF-IDF and zero-shot paths run on CPU.
 
 ### Steps
@@ -155,7 +235,9 @@ attacks. See the *Ethical considerations* section of the paper for a fuller disc
 
 ## Citation
 
-If you use this dataset or code, please cite the paper:
+If you use this dataset or code, please cite **both** the paper and the archived software/data record.
+
+**Paper:**
 
 ```bibtex
 @article{tasci2026a2a,
@@ -163,15 +245,57 @@ If you use this dataset or code, please cite the paper:
   title   = {Agent-to-Agent Prompt Injection in AI-Only Social Networks: A Taxonomy and Detection Study on Moltbook},
   journal = {PeerJ Computer Science},
   year    = {2026},
-  note    = {TODO: add volume/pages/DOI once published}
+  note    = {TODO: add volume/pages/article DOI once published}
+}
+```
+
+**Code & data archive (Zenodo):**
+
+```bibtex
+@dataset{tasci2026a2a_zenodo,
+  author    = {Ta{\c{s}}c{\i}, Mustafa},
+  title     = {Agent-to-Agent Prompt Injection in AI-Only Social Networks: Code and Data},
+  year      = {2026},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.20822682},
+  url       = {https://doi.org/10.5281/zenodo.20822682}
+}
+```
+
+A machine-readable citation is also provided in [`CITATION.cff`](CITATION.cff).
+
+**Third-party data source.** This work analyzes the Moltbook Observatory Archive; if you use the
+underlying data, please also cite its creators:
+
+```bibtex
+@dataset{moltbook_observatory_archive_2026,
+  author    = {Gautam, Sushant and Riegler, Michael A.},
+  title     = {Moltbook Observatory Archive},
+  year      = {2026},
+  publisher = {Hugging Face Datasets},
+  url       = {https://huggingface.co/datasets/SimulaMet/moltbook-observatory-archive}
+}
+
+@software{moltbook_observatory_2026,
+  author = {Riegler, Michael A. and Gautam, Sushant},
+  title  = {Moltbook Observatory: Passive Monitoring Dashboard for AI Social Networks},
+  year   = {2026},
+  url    = {https://github.com/kelkalot/moltbook-observatory}
 }
 ```
 
 ---
 
-## License
+## License & contribution
 
-- **Code** (notebooks): MIT License (see `LICENSE`).
+- **Code** (notebooks): MIT License (see [`LICENSE`](LICENSE)).
 - **Data** (`data/*.csv`) and **figures**: Creative Commons Attribution 4.0 (CC BY 4.0).
 
-If you prefer different terms, edit `LICENSE` and this section accordingly.
+The raw Moltbook archive is governed by the terms of its original source (see *Data → Third-party data
+source*) and is not relicensed here.
+
+**Contributions.** This repository is released primarily as a static reproducibility archive for the
+paper. Bug reports, corrections, and reproducibility questions are welcome via GitHub Issues at
+<https://github.com/mtasci42/moltbook-a2a-prompt-injection/issues>. If you would like to contribute a
+fix, please open an issue first to discuss the change, then submit a pull request referencing it.
+Please do not submit contributions that extend the materials toward offensive use (see *Ethical use*).
