@@ -7,8 +7,8 @@
 Code, data, and reproducibility materials for the paper:
 
 > **Agent-to-Agent Prompt Injection in AI-Only Social Networks: A Taxonomy and Detection Study on Moltbook**
-> Mustafa Taşçı, Bandırma Onyedi Eylül University.
-> *(PeerJ Computer Science, 2026 — article DOI: `TODO: add once published`)*
+> Mustafa Tasci, Bandirma Onyedi Eylul University.
+> *(PeerJ Computer Science, 2026; article DOI to be added upon publication.)*
 
 - **Source code (GitHub):** <https://github.com/mtasci42/moltbook-a2a-prompt-injection>
 - **Archived release (Zenodo):** <https://doi.org/10.5281/zenodo.20822682>
@@ -32,8 +32,8 @@ Starting from a 3,105,136-post window of the public Moltbook archive, this work:
 1. defines a **five-category attack taxonomy** (instruction override, identity/control hijacking,
    advertising/redirection, information exfiltration, memory poisoning);
 2. builds a **human-validated labeled dataset** via LLM-assisted annotation with human adjudication;
-3. compares **three detectors** — a zero-shot transformer, a fine-tuned DistilBERT, and an
-   interpretable TF-IDF + logistic-regression model — under a **leakage-resistant, group-aware**
+3. compares **three detectors**, a zero-shot transformer, a fine-tuned DistilBERT, and an
+   interpretable TF-IDF + logistic-regression model, under a **leakage-resistant, group-aware**
    protocol that keeps near-duplicate templates out of both train and test sets;
 4. audits the recall of the heuristic candidate-generation screen to characterize platform-wide
    coverage.
@@ -41,8 +41,8 @@ Starting from a 3,105,136-post window of the public Moltbook archive, this work:
 **Headline result.** With an optimized threshold, the lightweight interpretable model (F1 = 0.941,
 ROC-AUC = 0.977) **matches** the fine-tuned transformer (F1 = 0.917) with no statistically
 significant difference (paired bootstrap, McNemar p = 1.0), while being far cheaper and fully
-inspectable. A screen-recall audit shows the heuristic stage recovers only ~11% of platform attacks,
-so candidate generation — not classification — is the main deployment bottleneck.
+inspectable. A screen-recall audit shows the heuristic stage recovers only about 11% of platform
+attacks, so candidate generation, not classification, is the main deployment bottleneck.
 
 ---
 
@@ -56,20 +56,20 @@ threshold optimization, and evaluation.*
 
 The processing and modeling steps, in order, are:
 
-1. **Data collection.** A 3,105,136-post window of the public Moltbook archive is loaded (see
-   *Data → Third-party data source* below).
+1. **Data collection.** A 3,105,136-post window of the public Moltbook archive is loaded (see the
+   *Data* section, *Third-party data source*).
 2. **Heuristic screening.** A high-recall, regex-based screen flags candidate posts that match any of
    the five taxonomy categories, producing the candidate pool.
-3. **EDA & phase analysis.** Exploratory analysis across the three platform phases (launch,
+3. **EDA and phase analysis.** Exploratory analysis across the three platform phases (launch,
    stabilization, post-acquisition).
-4. **Sampling & labeling.** A phase-balanced sample is drawn from the candidate pool and labeled via
+4. **Sampling and labeling.** A phase-balanced sample is drawn from the candidate pool and labeled via
    LLM-assisted annotation with human adjudication, yielding `moltbook_seed_v2.csv`.
 5. **Deduplication.** Template-based deduplication groups near-duplicate posts.
 6. **Group-aware split.** A train/test split that keeps all members of a duplicate group on the same
    side, preventing template leakage between train and test.
 7. **Model training.** Three detectors are trained: zero-shot transformer, fine-tuned DistilBERT, and
    TF-IDF + logistic regression.
-8. **Threshold optimization & evaluation.** Decision thresholds are tuned; models are compared with
+8. **Threshold optimization and evaluation.** Decision thresholds are tuned; models are compared with
    paired bootstrap and McNemar tests, group-aware cross-validation, and a temporal holdout.
 9. **Recall audit.** An independent phase-stratified sample (`recall_audit_labeled.csv`) estimates the
    true attack base rate and the heuristic screen's recall.
@@ -80,25 +80,25 @@ The processing and modeling steps, in order, are:
 
 ```
 .
-├── notebooks/
-│   ├── phase1_data_exploration.ipynb   # Phase 1: data loading, heuristic screening,
-│   │                                   #          EDA, sampling, seed export, recall audit
-│   └── phase2_model_training.ipynb     # Phase 2: dedup + group-aware split, three models,
-│                                       #          threshold opt., bootstrap/McNemar, CV,
-│                                       #          temporal holdout, error analysis
-├── data/
-│   ├── moltbook_seed_v2.csv            # 630 human-labeled posts (the training/eval seed)
-│   └── recall_audit_labeled.csv        # 1,500 adjudicated posts for the screen-recall audit
-├── figures/                            # figures used in the paper (PNG)
-├── requirements.txt
-├── CITATION.cff
-├── LICENSE
-└── README.md
++-- notebooks/
+|   +-- phase1_data_exploration.ipynb   # Phase 1: data loading, heuristic screening,
+|   |                                   #          EDA, sampling, seed export, recall audit
+|   +-- phase2_model_training.ipynb     # Phase 2: dedup + group-aware split, three models,
+|                                       #          threshold opt., bootstrap/McNemar, CV,
+|                                       #          temporal holdout, error analysis
++-- data/
+|   +-- moltbook_seed_v2.csv            # 630 human-labeled posts (the training/eval seed)
+|   +-- recall_audit_labeled.csv        # 1,500 adjudicated posts for the screen-recall audit
++-- figures/                            # figures used in the paper (PNG)
++-- requirements.txt
++-- CITATION.cff
++-- LICENSE
++-- README.md
 ```
 
 ---
 
-## Code Information
+## Code information
 
 All analysis is implemented in two self-contained Jupyter notebooks (Python 3.10+), developed on
 Google Colab. No separate package or CLI is required; running the notebooks top to bottom reproduces
@@ -107,14 +107,14 @@ every result, table, and figure in the paper.
 | Notebook | Purpose | Key inputs | Key outputs |
 |---|---|---|---|
 | `notebooks/phase1_data_exploration.ipynb` | Data loading, high-recall heuristic screening, EDA and phase analysis, balanced sampling, seed export, and the screen-recall audit | Moltbook archive (downloaded in-notebook) | `moltbook_seed_v2.csv`, `recall_audit_labeled.csv`, EDA figures |
-| `notebooks/phase2_model_training.ipynb` | Template deduplication and group-aware split; training/evaluation of the three detectors; threshold optimization; bootstrap/McNemar significance tests; group-aware cross-validation; temporal holdout; error and interpretability analysis | `moltbook_seed_v2.csv` | Benchmark tables, ROC/PR curves, significance-test results, error analysis |
+| `notebooks/phase2_model_training.ipynb` | Template deduplication and group-aware split; training and evaluation of the three detectors; threshold optimization; bootstrap/McNemar significance tests; group-aware cross-validation; temporal holdout; error and interpretability analysis | `moltbook_seed_v2.csv` | Benchmark tables, ROC/PR curves, significance-test results, error analysis |
 
-- **Language / runtime:** Python 3.10+.
+- **Language and runtime:** Python 3.10+.
 - **Main libraries:** see [`requirements.txt`](requirements.txt) (scikit-learn, pandas, NumPy,
   Hugging Face `transformers`/`datasets`, PyTorch, matplotlib).
 - **Hardware:** the TF-IDF and zero-shot paths run on CPU; fine-tuning DistilBERT in Phase 2 benefits
   from a GPU.
-- **Configuration:** both notebooks define a `DATASET_DIR` (Google Drive) path near the top — edit it
+- **Configuration:** both notebooks define a `DATASET_DIR` (Google Drive) path near the top; edit it
   to your own directory before running.
 
 ---
@@ -146,10 +146,15 @@ ds = load_dataset(
 ```
 
 The two CSVs released here are the human-validated subsets derived from that archive. The same source
-is cited in the *Materials & Methods* section of the paper (see *Citation → Third-party data source*
-below for the formal reference).
+is cited in the *Materials and Methods* section of the paper; the formal reference is given in the
+*Citation* section below.
 
-### `data/moltbook_seed_v2.csv` — labeled seed (n = 630)
+**Note on post text.** The `content`, `title`, and `display_text` fields reproduce Moltbook posts
+verbatim, exactly as they appeared on the platform. A small number of posts contain emoji or
+non-Latin scripts. This text has been left unaltered so that the labeled examples remain faithful to
+the analyzed data; all files are encoded in UTF-8.
+
+### `data/moltbook_seed_v2.csv`: labeled seed (n = 630)
 
 A phase-balanced sample of 630 posts (167 attacks, 463 non-attacks) drawn from the screened candidate
 pool, each adjudicated by a human annotator.
@@ -161,15 +166,15 @@ pool, each adjudicated by a human annotator.
 | `title`, `content` | Post text |
 | `score`, `comment_count` | Engagement metadata |
 | `phase` | Platform phase (1 = launch, 2 = stabilization, 3 = post-acquisition) |
-| `n_categories`, `total_hits`, `sezgisel_kategoriler` | Heuristic-screen outputs (matched categories / hit count) |
-| `ETIKET_saldiri_var_mi` | **Final label**: 1 = A2A attack, 0 = not an attack |
-| `ETIKET_kategori` | Taxonomy category/categories (C1–C5) for positive posts |
-| `ETIKET_notlar` | Annotator notes |
+| `n_categories`, `total_hits`, `heuristic_categories` | Heuristic-screen outputs (matched categories and hit count) |
+| `label_is_attack` | **Final label**: 1 = A2A attack, 0 = not an attack |
+| `label_category` | Taxonomy category or categories (C1-C5) for positive posts |
+| `label_notes` | Annotator notes |
 
 Labeling principle: a post is positive only if it **performs** an attack; posts that merely
 **discuss** or defend against attacks are labeled negative.
 
-### `data/recall_audit_labeled.csv` — screen-recall audit (n = 1,500)
+### `data/recall_audit_labeled.csv`: screen-recall audit (n = 1,500)
 
 A phase-stratified random sample drawn independently of the seed, adjudicated with the same protocol,
 used to estimate the true attack base rate and the heuristic screen's recall.
@@ -188,7 +193,7 @@ flagged (`regex_flagged == 1`).
 
 ---
 
-## Usage / reproducing the results
+## Usage and reproducing the results
 
 ### Get the repository
 
@@ -210,16 +215,16 @@ developed on Google Colab); the TF-IDF and zero-shot paths run on CPU.
 
 ### Steps
 
-1. **Phase 1 — `notebooks/phase1_data_exploration.ipynb`.** Loads the archive (or a cached scan),
+1. **Phase 1, `notebooks/phase1_data_exploration.ipynb`.** Loads the archive (or a cached scan),
    runs the high-recall heuristic screen, performs EDA and phase analysis, samples the balanced seed,
-   and exports it. An appendix reproduces the screen-recall audit. *Run only one of the two data-loading
-   options (cached vs. download-from-scratch).*
-2. **Phase 2 — `notebooks/phase2_model_training.ipynb`.** Loads the labeled seed, applies template-
-   based deduplication and a group-aware train/test split, trains and evaluates the three detectors,
-   optimizes thresholds, runs bootstrap/McNemar significance tests, group-aware cross-validation, a
-   temporal holdout, and the error/interpretability analysis.
+   and exports it. An appendix reproduces the screen-recall audit. *Run only one of the two
+   data-loading options (cached vs. download-from-scratch).*
+2. **Phase 2, `notebooks/phase2_model_training.ipynb`.** Loads the labeled seed, applies
+   template-based deduplication and a group-aware train/test split, trains and evaluates the three
+   detectors, optimizes thresholds, runs bootstrap/McNemar significance tests, group-aware
+   cross-validation, a temporal holdout, and the error/interpretability analysis.
 
-> Both notebooks define a `DATASET_DIR` (Google Drive) path near the top — edit it to your own
+> Both notebooks define a `DATASET_DIR` (Google Drive) path near the top; edit it to your own
 > directory before running.
 
 ---
@@ -244,12 +249,11 @@ If you use this dataset or code, please cite **both** the paper and the archived
   author  = {Ta{\c{s}}c{\i}, Mustafa},
   title   = {Agent-to-Agent Prompt Injection in AI-Only Social Networks: A Taxonomy and Detection Study on Moltbook},
   journal = {PeerJ Computer Science},
-  year    = {2026},
-  note    = {TODO: add volume/pages/article DOI once published}
+  year    = {2026}
 }
 ```
 
-**Code & data archive (Zenodo):**
+**Code and data archive (Zenodo):**
 
 ```bibtex
 @dataset{tasci2026a2a_zenodo,
@@ -286,13 +290,13 @@ underlying data, please also cite its creators:
 
 ---
 
-## License & contribution
+## License and contribution
 
 - **Code** (notebooks): MIT License (see [`LICENSE`](LICENSE)).
 - **Data** (`data/*.csv`) and **figures**: Creative Commons Attribution 4.0 (CC BY 4.0).
 
-The raw Moltbook archive is governed by the terms of its original source (see *Data → Third-party data
-source*) and is not relicensed here.
+The raw Moltbook archive is governed by the terms of its original source (see the *Data* section,
+*Third-party data source*) and is not relicensed here.
 
 **Contributions.** This repository is released primarily as a static reproducibility archive for the
 paper. Bug reports, corrections, and reproducibility questions are welcome via GitHub Issues at
